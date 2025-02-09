@@ -11,7 +11,7 @@ app = Flask(__name__, static_folder='static')
 CORS(app)
 
 # Load crop dataset
-csv_path = 'https://raw.githubusercontent.com/Aniketmutal55/datasets/refs/heads/main/Crop_recommendation.csv'
+csv_path = 'Crop_recommendation.csv'
 if not os.path.exists(csv_path):
     raise FileNotFoundError(f"Could not find {csv_path}")
 
@@ -31,7 +31,7 @@ rf_model.fit(X_train_scaled, y_train)
 
 # Load fertilizer dataset
 try:
-    fertilizer_data = pd.read_csv('https://raw.githubusercontent.com/Aniketmutal55/datasets/refs/heads/main/fertilizer.csv')
+    fertilizer_data = pd.read_csv('Fertilizer.csv')
     print("Fertilizer data loaded successfully")
     print("Columns in fertilizer data:", fertilizer_data.columns.tolist())
 except Exception as e:
@@ -142,4 +142,4 @@ def check_images():
     return f"Files in images directory: {files}"
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run() 
