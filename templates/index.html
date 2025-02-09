@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Agricultural Assistant</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8f0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c5530;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .options-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 20px;
+        }
+        .option-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            margin: 10px;
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+        }
+        .option-card:hover {
+            transform: translateY(-5px);
+        }
+        .option-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .option-image:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .option-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .option-button:hover {
+            background-color: #45a049;
+        }
+        /* Hide the forms initially */
+        #crop-form, #fertilizer-form {
+            display: none;
+        }
+        #main-page {
+            display: block;
+        }
+        .back-button {
+            background-color: #666;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .input-group input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+        #result, #fertilizer-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            font-size: 18px;
+            text-align: center;
+        }
+        .success {
+            background-color: #dff0d8;
+            border: 1px solid #d6e9c6;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            color: #a94442;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .loading:after {
+            content: "...";
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60% { content: "..."; }
+            80%, 100% { content: ""; }
+        }
+
+        /* Mobile-specific styles */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .option-card {
+                margin: 10px 0;
+                min-width: 100%;
+            }
+
+            .option-image {
+                height: 200px;
+            }
+
+            .input-group {
+                padding: 10px;
+            }
+
+            .input-group input {
+                font-size: 16px; /* Prevents iOS zoom on focus */
+                padding: 10px;
+            }
+
+            .submit-button, .option-button {
+                padding: 12px 20px;
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .back-button {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            #result, #fertilizer-result {
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+
+        /* Additional mobile optimizations */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .option-card {
+            touch-action: manipulation;
+        }
+
+        /* Add smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Add pull-to-refresh styling */
+        body {
+            overscroll-behavior-y: contain;
+        }
+
+        /* Add mobile touch feedback */
+        .option-button:active,
+        .submit-button:active,
+        .back-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Improve mobile form usability */
+        form {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .input-group label {
+            font-size: 14px;
+        }
+
+        /* Add loading spinner for mobile */
+        .loading {
+            position: relative;
+            min-height: 40px;
+        }
+
+        .loading:before {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            border-top-color: #4CAF50;
+            animation: spinner .6s linear infinite;
+        }
+
+        @keyframes spinner {
+            to {transform: rotate(360deg);}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Page -->
+        <div id="main-page">
+            <h1>AgroSmart</h1>
+            <div class="options-container">
+                <div class="option-card">
+                    <img src="/static/images/crop_recommendation.jpg" 
+                         alt="Crop Recommendation" 
+                         class="option-image"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='/static/images/default.jpg'; console.log('Error loading crop image');">
+                    <h2>Crop Recommendation</h2>
+                    <button class="option-button" onclick="showForm('crop-form')">Get Crop Recommendation</button>
+                </div>
+                <div class="option-card">
+                    <img src="/static/images/fertilizer_suggestion.jpg" 
+                         alt="Fertilizer Suggestion" 
+                         class="option-image"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='/static/images/default.jpg'; console.log('Error loading fertilizer image');">
+                    <h2>Fertilizer Suggestion</h2>
+                    <button class="option-button" onclick="showForm('fertilizer-form')">Get Fertilizer Suggestion</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crop Form -->
+        <div id="crop-form" style="display: none;">
+            <button class="back-button" onclick="showMainPage()">Back to Main Page</button>
+            <h1>Crop Recommendation</h1>
+            <form onsubmit="handleCropSubmit(event)">
+                <div class="input-group">
+                    <label for="nitrogen">Nitrogen content in soil (N):</label>
+                    <input type="number" id="nitrogen" required step="any" min="0" max="140" placeholder="Enter value between 0-140">
+                </div>
+                <div class="input-group">
+                    <label for="phosphorus">Phosphorus content in soil (P):</label>
+                    <input type="number" id="phosphorus" required step="any" min="0" max="145" placeholder="Enter value between 0-145">
+                </div>
+                <div class="input-group">
+                    <label for="potassium">Potassium content in soil (K):</label>
+                    <input type="number" id="potassium" required step="any" min="0" max="205" placeholder="Enter value between 0-205">
+                </div>
+                <div class="input-group">
+                    <label for="temperature">Temperature (°C):</label>
+                    <input type="number" id="temperature" required step="any" min="0" max="50" placeholder="Enter value between 0-50">
+                </div>
+                <div class="input-group">
+                    <label for="humidity">Humidity (%):</label>
+                    <input type="number" id="humidity" required step="any" min="0" max="100" placeholder="Enter value between 0-100">
+                </div>
+                <div class="input-group">
+                    <label for="ph">pH value of soil:</label>
+                    <input type="number" id="ph" required step="any" min="0" max="14" placeholder="Enter value between 0-14">
+                </div>
+                <div class="input-group">
+                    <label for="rainfall">Rainfall (mm):</label>
+                    <input type="number" id="rainfall" required step="any" min="0" max="300" placeholder="Enter value between 0-300">
+                </div>
+                <button type="submit" class="submit-button">Predict Crop</button>
+                <div class="loading" id="crop-loading">Predicting crop</div>
+            </form>
+            <div id="result"></div>
+        </div>
+
+        <!-- Fertilizer Form -->
+        <div id="fertilizer-form" style="display: none;">
+            <button class="back-button" onclick="showMainPage()">Back to Main Page</button>
+            <h1>Fertilizer Suggestion</h1>
+            <form onsubmit="handleFertilizerSubmit(event)">
+                <div class="input-group">
+                    <label for="nitrogen-fert">Nitrogen content in soil (N):</label>
+                    <input type="number" id="nitrogen-fert" required step="any" min="0" max="140" placeholder="Enter value between 0-140">
+                </div>
+                <div class="input-group">
+                    <label for="phosphorus-fert">Phosphorus content in soil (P):</label>
+                    <input type="number" id="phosphorus-fert" required step="any" min="0" max="145" placeholder="Enter value between 0-145">
+                </div>
+                <div class="input-group">
+                    <label for="potassium-fert">Potassium content in soil (K):</label>
+                    <input type="number" id="potassium-fert" required step="any" min="0" max="205" placeholder="Enter value between 0-205">
+                </div>
+                <div class="input-group">
+                    <label for="temperature-fert">Temperature (°C):</label>
+                    <input type="number" id="temperature-fert" required step="any" min="0" max="50" placeholder="Enter value between 0-50">
+                </div>
+                <div class="input-group">
+                    <label for="humidity-fert">Humidity (%):</label>
+                    <input type="number" id="humidity-fert" required step="any" min="0" max="100" placeholder="Enter value between 0-100">
+                </div>
+                <div class="input-group">
+                    <label for="ph-fert">pH value of soil:</label>
+                    <input type="number" id="ph-fert" required step="any" min="0" max="14" placeholder="Enter value between 0-14">
+                </div>
+                <button type="submit" class="submit-button">Suggest Fertilizer</button>
+                <div class="loading" id="fertilizer-loading">Finding best fertilizer</div>
+            </form>
+            <div id="fertilizer-result"></div>
+        </div>
+    </div>
+
+    <script>
+        function showForm(formId) {
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('crop-form').style.display = 'none';
+            document.getElementById('fertilizer-form').style.display = 'none';
+            document.getElementById(formId).style.display = 'block';
+        }
+
+        function showMainPage() {
+            document.getElementById('main-page').style.display = 'block';
+            document.getElementById('crop-form').style.display = 'none';
+            document.getElementById('fertilizer-form').style.display = 'none';
+        }
+
+        async function handleCropSubmit(event) {
+            event.preventDefault();
+            
+            // Show loading
+            document.getElementById('crop-loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            
+            const formData = {
+                N: parseFloat(document.getElementById('nitrogen').value),
+                P: parseFloat(document.getElementById('phosphorus').value),
+                K: parseFloat(document.getElementById('potassium').value),
+                temperature: parseFloat(document.getElementById('temperature').value),
+                humidity: parseFloat(document.getElementById('humidity').value),
+                ph: parseFloat(document.getElementById('ph').value),
+                rainfall: parseFloat(document.getElementById('rainfall').value)
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                
+                if (data.error) {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `Error: ${data.error}`;
+                } else {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `<strong>Recommended Crop:</strong> ${data.prediction}`;
+                }
+            } catch (error) {
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = 'Error: Unable to get prediction. Please try again.';
+            } finally {
+                document.getElementById('crop-loading').style.display = 'none';
+            }
+        }
+
+        async function handleFertilizerSubmit(event) {
+            event.preventDefault();
+            
+            // Show loading
+            document.getElementById('fertilizer-loading').style.display = 'block';
+            document.getElementById('fertilizer-result').style.display = 'none';
+            
+            const formData = {
+                N: parseFloat(document.getElementById('nitrogen-fert').value),
+                P: parseFloat(document.getElementById('phosphorus-fert').value),
+                K: parseFloat(document.getElementById('potassium-fert').value),
+                temperature: parseFloat(document.getElementById('temperature-fert').value),
+                humidity: parseFloat(document.getElementById('humidity-fert').value),
+                ph: parseFloat(document.getElementById('ph-fert').value)
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/suggest_fertilizer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('fertilizer-result');
+                resultDiv.style.display = 'block';
+                
+                if (data.error) {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `Error: ${data.error}`;
+                } else {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `<strong>Recommended Fertilizer:</strong> ${data.fertilizer_suggestion}`;
+                }
+            } catch (error) {
+                const resultDiv = document.getElementById('fertilizer-result');
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = 'Error: Unable to get fertilizer suggestion. Please try again.';
+            } finally {
+                document.getElementById('fertilizer-loading').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
